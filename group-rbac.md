@@ -1,6 +1,6 @@
 # Group Based RBAC
 
-Sometime in the 90s, Microsoft coined the acronym ["AGDLP"](https://en.wikipedia.org/wiki/AGDLP), which refers to ab RBAC model based on Windows NT Domain group structures.
+Sometime in the 90s, Microsoft coined the acronym ["AGDLP"](https://en.wikipedia.org/wiki/AGDLP), which refers to a RBAC model based on Windows NT Domain group structures.
 
 * An **A**ccount is added as a member to a **G**lobal group,
 * The **G**lobal group is added as a member to a **D**omain **L**ocal group,
