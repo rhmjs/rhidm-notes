@@ -1,13 +1,13 @@
 #Integrating iDRAC 6 with Red Hat Identity Management
-## For Authentication and Access Control
 
+## iDRAC Authentication and Access Control via IdM users and groups
 
 ### Prequisites
 1. Download your IdM CA certificate from http://idmserver.example.com/ipa/config/ca.crt
 1. Create a POSIX group in IdM for admin users, such as idrac-admins
 1. Add a user account to the idrac-admins group
 
-### Access iDRAC 6 Generic LDAP Configuration and Management
+### Access iDRAC 6 Generic LDAP Configuration and Management settings
 1. Log into the iDRAC6 as root
 1. Select "iDRAC Settings" from the left menu
 1. Pick "Network/Security" from the top menu, then "Directory Service" from the sub-menu
@@ -48,3 +48,43 @@
 1. Enter the user ID and password for a member of the idrac-admins group
 1. Click the "Start Test" button.
 1. Confirm all tests pass as expected.
+
+## iDRAC HTTPS Certificate signed by IdM CA
+### Prequisites
+1. Create a host identity in IdM for the iDRAC interface, such as "idrac-ABC12345"
+
+### Access iDRAC 6 SSL settings
+1. Log into the iDRAC6 as root
+1. Select "iDRAC Settings" from the left menu
+1. Pick "Network/Security" from the top menu, then "SSL" from the sub-menu
+
+### GenerateStart the CSR Process
+1. Select "Generate Certificate Signing Request (CSR)"
+1. Click the "Next" button
+
+### Generate Certificate Signing Request (CSR)
+1. Enter the full FQDN such as "idrac-ABC12345.example.com" of the iDRAC interface as the "Common Name"
+1. The "Organization Name", "Organization Unit", "Locality", "State", "Country Code", and "Email" can be set to strings as appropriate
+1. Click the "Generate" button to download your CSR
+
+### Sign the CSR to create a certificate
+1. In the IdM web interface, click into the iDRAC host object created earlier
+1. Click the "Action" drop-down button and select "New Certificate"
+1. Copy and paste the contents of the CSR downloaded above into the large text box, and click the "Issue" button
+1. In the "Host Certificate" pane, click the "Show" button to view the contents of the SSL certificate.
+1. Copy those contents and paste into an empy text file.
+1. Insert a line containing only "-----BEGIN CERTIFICATE-----" at the beginning of the text file and a line containing only "-----END CERTIFICATE-----" at the end of the text file, such that it looks as follows, and save this file - this is the certificate file for your iDRAC.  **Copy and paste the BEGIN and END lines carefully, as the case and number of spaces is important!** Note this step could more correctly be accomplished by running "ipa getcert" if you have access to the "ipa admin" CLI tool.
+```
+-----BEGIN CERTIFICATE-----
+MIIEIjCCAwqgAwIBAgIBEDANBgkqhkiG9w0BAQ....
+-----END CERTIFICATE-----
+```
+
+### Install the new certificate
+1. Return to the iDRAC SSL interface as described above.
+1. Select "Upload Server Certificate" and click the "Next" button.
+
+### Upload Server Certificate
+1. Select the certificate you just created, and click the "Apply" button.  If you receive an error, you can use the OpenSSL CLI to fix the formatting of the certificate ```openssl x509 -in idrac.crt -out newidrac.crt```, and upload the 'newidrac.crt' as the corrected certificate.
+1. Close the success banner and click the "Go back to the SSL Menu" button.
+1. Your certificate is now successfully installed, and your browser can be used to confirm that the certificate used for HTTPS is now signed by your IdM CA.
